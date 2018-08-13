@@ -1,0 +1,37 @@
+{
+  "name": "vw",
+  "version": "1.0.0",
+  "description": "- 单文件化 - promise 化 - router 支持 - 生命周期分离支持 - npm 包支持 - axios 支持",
+  "main": "index.js",
+  "scripts": {
+    "dev": "webpack --watch --mode development --config ./build/webpack.config.ls.js",
+    "build": "nodemon ./wv/wx/index.js --watch ./wv",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "babel": "^6.23.0",
+    "babel-loader": "^7.1.5",
+    "colors": "^1.1.2",
+    "enhanced-resolve": "^4.0.0",
+    "escodegen": "^1.9.1",
+    "espree": "^3.5.4",
+    "esprima": "^4.0.0",
+    "estraverse": "^4.2.0",
+    "htmlparser": "^1.7.7",
+    "htmlparser2": "^3.9.2",
+    "mini-program-webpack-loader": "^0.1.9",
+    "string-width": "^2.1.1",
+    "sys": "0.0.1",
+    "vue-template-compiler": "^2.5.13",
+    "webpack": "^4.0.1"
+  },
+  "devDependencies": {
+    "babel-cli": "^6.26.0",
+    "babel-preset-env": "^1.7.0",
+    "file-loader": "^1.1.11",
+    "webpack-cli": "^2.0.10",
+    "webpack-merge": "^4.1.4"
+  }
+}
