@@ -1,0 +1,12 @@
+<script>
+const router = require('we-router')
+const request = require('we-request')
+class App {
+  router = router
+  request = request
+  onLoad () {}
+}
+</script>
+<script>
+  
+</script>
