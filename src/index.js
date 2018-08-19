@@ -27,6 +27,8 @@
 // export const App = application
 // export const Page = page
 const Store = require('./store')
+const Watcher = require('./watcher')
+const { defineReactive } = require('./observer')
 
 const store = new Store({
   state: {
@@ -35,11 +37,48 @@ const store = new Store({
       { id: 2, text: '...', done: false }
     ]
   },
+  actions: {
+    setTwoBeDone ({commit}) {
+      commit('TWO_DONE')
+    },
+    pushOneToList({commit}) {
+      commit('PUST_ONE', { id: 3, done: false })
+    }
+  },
+  mutations: {
+    TWO_DONE(state) {
+      state.todos[1].done = true
+    },
+    PUST_ONE(state, payload) {
+      state.todos.push(payload)
+    }
+  },
   getters: {
     doneTodos: state => {
       return state.todos.filter(todo => todo.done)
     }
   }
+}, defineReactive)
+
+
+
+
+// store.state.todos.push(1)
+store.dispatch('setTwoBeDone')
+
+new Watcher(store.state, 'todos', (todos, keys) => {
+  // console.log(todos, keys)
 })
 
-console.log(store.getters.doneTodos)
+store.dispatch('pushOneToList')
+
+store.state.todos[1].done = {n: 9}
+store.state.todos[2].done = false
+
+setTimeout(() => {
+  store.state.todos[2].id = '-1'
+  store.state.todos[2].done = true
+  store.state.todos[2] = {}
+}, 200)
+
+// console.log(store.getters.doneTodos)

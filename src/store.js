@@ -1,58 +1,24 @@
-const forEachValue = (obj, fn) => {
-  Object.keys(obj).forEach(key => fn(obj[key], key))
-}
-
-class Module {
-  constructor (rawModule) {
-    this.rawModule = rawModule
-    this.children = Object.create(null)
-
-    this.state = rawModule.state || {}
-  }
-
-  get namespaced () {
-    return !!this.rawModule.namespaced
-  }
-
-  addChild (key, module) {
-    this.state[key] = module.state
-    this.children[key] = module
-  }
-
-  removeChild (key) {
-    delete this.state[key]
-    delete this.children[key]
-  }
-
-  getChild (key) {
-    return this.children[key]
-  }
-
-  forEachGetter (fn) {
-    this.rawModule.getters && forEachValue(this.rawModule.getters, fn)
-  }
-
-  forEachAction (fn) {
-    this.rawModule.actions && forEachValue(this.rawModule.actions, fn)
-  }
-
-  forEachMutation (fn) {
-    this.rawModule.mutations && forEachValue(this.rawModule.mutations, fn)
-  }
-
-  forEachChild (fn) {
-    this.children && forEachValue(this.children, fn)
-  }
-}
+const {forEachValue, isObject, isPromise} = require('./utils');
+const Module = require('./module');
 
 module.exports = class Store {
-  constructor (module) {
+  constructor (module, defineReactive) {
     this._committing = false
     this._actions = Object.create(null)
     this._actionSubscribers = []
     this._mutations = Object.create(null)
     this._wrappedGetters = Object.create(null)
     this._subscribers = []
+    this._defineReactive = defineReactive
+
+    const store = this
+    const { dispatch, commit } = this
+    this.dispatch = function boundDispatch (type, payload) {
+      return dispatch.call(store, type, payload)
+    }
+    this.commit = function boundCommit (type, payload, options) {
+      return commit.call(store, type, payload, options)
+    }
 
     this.registerModule([], module)
     this.computedGetters()
@@ -126,7 +92,7 @@ module.exports = class Store {
   }
 
   registerModule (path, module) {
-    let newModule = new Module(module)
+    let newModule = new Module(module, this._defineReactive, path)
 
     if (!path.length) {
       this.root = newModule
@@ -344,7 +310,7 @@ function unifyObjectStyle (type, payload, options) {
   }
 
   if (process.env.NODE_ENV !== 'production') {
-    assert(typeof type === 'string', `expects string as the type, but found ${typeof type}.`)
+    typeof type !== 'string' && console.log(`expects string as the type, but found ${typeof type}.`)
   }
 
   return { type, payload, options }
