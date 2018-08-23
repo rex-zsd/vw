@@ -13,10 +13,11 @@ function minLenPath (paths) {
 
 module.exports = class Watcher {
   constructor (target, key, cb, ctx) {
-    this.cb = cb.bind(ctx)
-    this.target = target
     this.key = key
-    defineReactive(target, key, target[key], { watcher: this })
+    this.target = target
+    this.cb = cb.bind(ctx)
+    this._isWatching = true
+    this.ob = defineReactive(target, key, target[key], { watcher: this })
     // this.update()
   }
 
@@ -24,10 +25,15 @@ module.exports = class Watcher {
     changeQ.push(path.join('.'))
     if (this.timer) return
     this.timer = setTimeout(() => {
-      console.log(minLenPath(changeQ), '========')
-      this.cb(this.target[this.key], changeQ)
+      this.cb(this._isWatching ? this.target[this.key] : this.ob.tree(), changeQ)
       changeQ = []
       this.timer = null
+      console.log('[WATCH TREE]\n  ', this.ob.tree())
     }, 0)
+  }
+
+  unSubscribe () {
+    this._isWatching = false
+    this.ob.unWatch(this)
   }
 }

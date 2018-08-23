@@ -5,8 +5,8 @@ module.exports = class Module {
     this.rawModule = rawModule
     this.children = Object.create(null)
 
-    // this.state = rawModule.state || {}
-    defineReactive(this, 'state', rawModule.state || {}, path.concat('state'))
+    this.state = rawModule.state || {}
+    // defineReactive(this, 'state', rawModule.state || {}, path.concat('state'))
   }
 
   get namespaced () {

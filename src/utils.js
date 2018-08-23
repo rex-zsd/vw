@@ -16,3 +16,7 @@ module.exports.def = function (obj, key, value) {
     value
   })
 }
+
+module.exports.isEmpty = function (val) {
+  return val === null || (Array.isArray(val) && val.length === 0) || JSON.stringify(val) === '{}' 
+}

@@ -66,13 +66,22 @@ const store = new Store({
 // store.state.todos.push(1)
 store.dispatch('setTwoBeDone')
 
-new Watcher(store.state, 'todos', (todos, keys) => {
-  // console.log(todos, keys)
+let watcher = new Watcher(store.state, 'todos', (todos, keys) => {
+  console.log('[RESULT VALUE]\n  ', todos)
+  console.log('[RESULT KEYS]\n  ', keys)
+
+  console.log('[DONE TODO]', store.getters.doneTodos)
 })
+
+setTimeout(() => {
+  store.state.todos[1] = { id: 1 }
+  watcher.unSubscribe()
+  store.state.todos[1] = {}
+}, 300)
 
 store.dispatch('pushOneToList')
 
-store.state.todos[1].done = {n: 9}
+store.state.todos[1] = 2
 store.state.todos[2].done = false
 
 setTimeout(() => {
@@ -80,5 +89,3 @@ setTimeout(() => {
   store.state.todos[2].done = true
   store.state.todos[2] = {}
 }, 200)
-
-// console.log(store.getters.doneTodos)

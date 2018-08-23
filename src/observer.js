@@ -1,4 +1,4 @@
-const { isObject, def } = require('./utils')
+const { isObject, def, isEmpty } = require('./utils')
 const attachMethods = require('./array')
 const arrayKeys = Object.getOwnPropertyNames(attachMethods)
 
@@ -28,30 +28,35 @@ class Observer {
   }
 
   set (newVal) {
-    console.log('[set value]', this._key, newVal)
-    if (newVal === this._value || (isNaN(newVal) && isNaN(this._value))) {
+    console.log('[SET VALUE]', this._value, newVal)
+
+    if (newVal === this._value || (newVal !== this._value && newVal !== newVal)) {
       return
     }
-    // 移除机制 todo
     this.notify('value:change')
     this.observe(newVal)
   }
 
   watch (watcher) {
     this._watchers.add(watcher)
-    this.notify('watcher:registed')
+    this.notify('watcher:registed', true)
+    console.log('[WATCHER ENTRY]')
   }
 
   unWatch (watcher) {
     this._watchers.delete(watcher)
+
+    if (!this._shouldNotifyWhenDataChange && !this._watchers.size) {
+      this.notify('watcher:registed', false)
+    }
+    console.log('[WATCHER LEAVE]')
   }
 
   childEntry (child) {
     this._children.add(child)
 
     if (this._shouldNotifyWhenDataChange || this._watchers.size) {
-      // console.log('[child entry]', child._key)
-      this.notifyChildWatcherEntry(child)
+      this.notifyChildWatcherEntry(child, true)
     }
   }
 
@@ -59,10 +64,10 @@ class Observer {
     this._children.delete(child)
   }
 
-  notify (type, { path = [] } = {}) {
+  notify (type, { path = [], watch } = {}) {
     if (type === 'watcher:registed') {
       for (const child of this._children) {
-        this.notifyChildWatcherEntry(child)
+        this.notifyChildWatcherEntry(child, watch)
       }
       return 
     }
@@ -81,17 +86,15 @@ class Observer {
     }
   }
 
-  notifyChildWatcherEntry (child) {
-    child._shouldNotifyWhenDataChange = true
+  notifyChildWatcherEntry (child, should) {
+    child._shouldNotifyWhenDataChange = should
     child.notify('watcher:registed')
   }
 
   observeArray (value) {
     for (let i = 0; i < value.length; i++) {
       let itemIndex = this._value.indexOf(value[i])
-      console.log('==================')
       exports.defineReactive(this._value, itemIndex, value[i], { parent: this, path: [`[${itemIndex}]`] })
-      console.log(this._value, this._key)
       this.notify('value:change', { path: [`[${itemIndex}]`] })
     }
   }
@@ -106,19 +109,43 @@ class Observer {
     return value
   }
 
+  clearChildren () {
+    for (const child of this._children) {
+      this.childLeave(child)
+    }
+    console.log('[CLEAR CHILDREN]', this._value)
+  }
+
   observe (value) {
     if (Array.isArray(value)) {
-      return this.attachArrayProps(value) && this.observeArray(value)
+      this.attachArrayProps(value) && this.observeArray(value)
+      return this._value = value
     }
 
-    if (!isObject(value)) return
-    
+    if (!isObject(value) || isEmpty(value)) {
+      this._children.size && this.clearChildren()
+      return this._value = value
+    }
+
     def(value, '__ob__', this)
     Object.keys(value).forEach(key => {
       if (typeof value[key] === 'function') return
 
       exports.defineReactive(value, key, value[key], { parent: this })
     })
+
+    this._value = value
+  }
+
+  tree (root = {}) {
+    root[this._key] = this._children.size ? {} : this._value
+
+    if (Array.isArray(this._value)) root[this._key] = []
+
+    for (const child of this._children) {
+      child.tree(root[this._key])
+    }
+    return root
   }
 }
 
