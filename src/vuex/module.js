@@ -1,6 +1,6 @@
 const {forEachValue} = require('../utils');
 
-module.exports = class Module {
+export default class Module {
   constructor (rawModule, defineReactive, path = []) {
     this.rawModule = rawModule
     this.children = Object.create(null)

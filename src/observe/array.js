@@ -44,4 +44,4 @@ const arrayMethods = Object.create(arrayProto)
 
 })
 
-module.exports = arrayMethods
+export default arrayMethods

@@ -1,22 +1,42 @@
-module.exports.forEachValue = (obj, fn) => {
+export const forEachValue = (obj, fn) => {
   Object.keys(obj).forEach(key => fn(obj[key], key))
 }
 
-module.exports.isObject = function (obj) {
+export const isObject = function (obj) {
   return obj !== null && typeof obj === 'object'
 }
-module.exports.isPromise = function isPromise (val) {
+export const isPromise = function isPromise (val) {
   return val && typeof val.then === 'function'
 }
 
 
-module.exports.def = function (obj, key, value) {
+export const def = function (obj, key, value) {
   Object.defineProperty(obj, key, {
     enumerable: false,
     value
   })
 }
 
-module.exports.isEmpty = function (val) {
-  return val === null || (Array.isArray(val) && val.length === 0) || JSON.stringify(val) === '{}' 
+export const isEmpty = function (val) {
+  return (!val && val !== 0) || val === null || (Array.isArray(val) && val.length === 0) || (typeof val === 'object' && Object.keys(val).length === 0)
+}
+
+
+export function parseKey (key) {
+  let path = key.split(/[\.\[]/).map(key => key.replace(']', ''))
+  
+  return path
+}
+
+export function get (target, key) {
+  let res = target
+
+  for (const keyItem of parseKey(key)) {
+    if (res && res[keyItem]) {
+      res = res[keyItem]
+    }
+    else return undefined
+  }
+  
+  return res
 }

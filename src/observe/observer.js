@@ -149,7 +149,7 @@ class Observer {
   }
 }
 
-exports.defineReactive = function defineReactive (target, key, value, { watcher, parent, path } = {}) {
+function defineReactive (target, key, value, { watcher, parent, path } = {}) {
   let ob = value.__ob__
   let property = Object.getOwnPropertyDescriptor(target, key)
   if (property && property.configurable === false) {
@@ -163,3 +163,5 @@ exports.defineReactive = function defineReactive (target, key, value, { watcher,
 
   return ob
 }
+
+export default defineReactive

@@ -1,11 +1,21 @@
 {
   "presets": [
-    "es2015", 
-    ["env", {
-      "loose": true,
-      "targets": {
-        "node": "6.10"
+    [
+      "env",
+      {
+        "modules": false,
+        "loose": false,
+        "useBuiltIns": true
       }
-    }]
+    ],
+    "stage-0"
+  ],
+  "plugins": [
+    [
+      "transform-runtime",
+      {
+        "polyfill": true
+      }
+    ]
   ]
 }

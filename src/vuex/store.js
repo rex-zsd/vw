@@ -1,7 +1,7 @@
-const {forEachValue, isObject, isPromise} = require('../utils');
-const Module = require('./module');
+import {forEachValue, isObject, isPromise} from '../utils';
+import Module from './module';
 
-module.exports = class Store {
+export default class Store {
   constructor (module, defineReactive) {
     this._committing = false
     this._actions = Object.create(null)
@@ -108,6 +108,8 @@ module.exports = class Store {
     }
 
     installModule(this, path, newModule)
+
+    return newModule
   }
 
   computedGetters () {
@@ -173,6 +175,7 @@ function installModule (store, path, module) {
 
 function makeLocalContext (store, namespace, path) {
   const noNamespace = namespace === ''
+
   const local = {
     dispatch: noNamespace ? store.dispatch : (_type, _payload, _options) => {
       const args = unifyObjectStyle(_type, _payload, _options)
