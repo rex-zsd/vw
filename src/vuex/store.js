@@ -1,4 +1,4 @@
-const {forEachValue, isObject, isPromise} = require('./utils');
+const {forEachValue, isObject, isPromise} = require('../utils');
 const Module = require('./module');
 
 module.exports = class Store {

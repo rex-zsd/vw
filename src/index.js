@@ -26,9 +26,9 @@
 
 // export const App = application
 // export const Page = page
-const Store = require('./store')
-const Watcher = require('./watcher')
-const { defineReactive } = require('./observer')
+const Store = require('./vuex/store')
+const Watcher = require('./observe/watcher')
+const { defineReactive } = require('./observe/observer')
 
 const store = new Store({
   state: {

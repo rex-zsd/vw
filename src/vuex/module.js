@@ -1,4 +1,4 @@
-const {forEachValue} = require('./utils');
+const {forEachValue} = require('../utils');
 
 module.exports = class Module {
   constructor (rawModule, defineReactive, path = []) {

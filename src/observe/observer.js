@@ -1,4 +1,4 @@
-const { isObject, def, isEmpty } = require('./utils')
+const { isObject, def, isEmpty } = require('../utils')
 const attachMethods = require('./array')
 const arrayKeys = Object.getOwnPropertyNames(attachMethods)
 

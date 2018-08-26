@@ -3,7 +3,7 @@
  * dynamically accessing methods on Array prototype
  */
 
-const { def } = require('./utils')
+const { def } = require('../utils')
 
 const arrayProto = Array.prototype
 const arrayMethods = Object.create(arrayProto)
