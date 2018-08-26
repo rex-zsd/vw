@@ -25,6 +25,6 @@ Page({
   // }
   onLoad() {
     this.$store.dispatch('one/next')
-    console.log(this.$store)
+    // console.log(this.$store)
   }
 })

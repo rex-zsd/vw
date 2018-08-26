@@ -1,5 +1,5 @@
-const { isObject, def, isEmpty } = require('../utils')
-const attachMethods = require('./array')
+import { isObject, def, isEmpty } from '../utils'
+import attachMethods from './array'
 const arrayKeys = Object.getOwnPropertyNames(attachMethods)
 
 class Observer {
@@ -39,7 +39,7 @@ class Observer {
 
   watch (watcher) {
     this._watchers.add(watcher)
-    this.notify('watcher:registed', true)
+    this.notify('watcher:registed', { watch: true })
     console.log('[WATCHER ENTRY]')
   }
 
@@ -47,7 +47,7 @@ class Observer {
     this._watchers.delete(watcher)
 
     if (!this._shouldNotifyWhenDataChange && !this._watchers.size) {
-      this.notify('watcher:registed', false)
+      this.notify('watcher:registed', { watch: false })
     }
     console.log('[WATCHER LEAVE]')
   }
@@ -71,11 +71,13 @@ class Observer {
       }
       return 
     }
+
     if (type === 'value:change') {
       path = this._path.concat(path)
       if (this._shouldNotifyWhenDataChange) {
         this._parent.notify('value:change', { path })
       }
+
       this._watchers.size && this.notifyWatcherDataChange({ path })
     }
   }
@@ -88,13 +90,13 @@ class Observer {
 
   notifyChildWatcherEntry (child, should) {
     child._shouldNotifyWhenDataChange = should
-    child.notify('watcher:registed')
+    child.notify('watcher:registed', { watch: should })
   }
 
   observeArray (value) {
     for (let i = 0; i < value.length; i++) {
       let itemIndex = this._value.indexOf(value[i])
-      exports.defineReactive(this._value, itemIndex, value[i], { parent: this, path: [`[${itemIndex}]`] })
+      defineReactive(this._value, itemIndex, value[i], { parent: this, path: [`[${itemIndex}]`] })
       this.notify('value:change', { path: [`[${itemIndex}]`] })
     }
   }
@@ -131,7 +133,7 @@ class Observer {
     Object.keys(value).forEach(key => {
       if (typeof value[key] === 'function') return
 
-      exports.defineReactive(value, key, value[key], { parent: this })
+      defineReactive(value, key, value[key], { parent: this })
     })
 
     this._value = value

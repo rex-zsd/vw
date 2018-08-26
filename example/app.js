@@ -7,14 +7,14 @@ App({
     }
   },
 
-  watch: {
-    '$store.state.test' (value, key) {
-      console.log(value, key)
-    }
-  },
+  // watch: {
+  //   '$store.state.test' (value, key) {
+  //     console.log(value, key)
+  //   }
+  // },
 
   onLaunch () {
-    console.log(this.$store.state)
-    this.$store.state.test = 4
+    // console.log(this.$store.state)
+    // this.$store.state.test = 4
   }
 })

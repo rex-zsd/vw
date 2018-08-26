@@ -21,6 +21,7 @@ export const isEmpty = function (val) {
   return (!val && val !== 0) || val === null || (Array.isArray(val) && val.length === 0) || (typeof val === 'object' && Object.keys(val).length === 0)
 }
 
+export const noop = () => {}
 
 export function parseKey (key) {
   let path = key.split(/[\.\[]/).map(key => key.replace(']', ''))
@@ -32,6 +33,9 @@ export function get (target, key) {
   let res = target
 
   for (const keyItem of parseKey(key)) {
+
+    if (keyItem === '') return res
+
     if (res && res[keyItem]) {
       res = res[keyItem]
     }
