@@ -47,7 +47,6 @@ export function mergeInstances (instanceLifes, instances) {
 export function extendWatcher (watchers) {
   return function watch () {
     this._watchers = []
-    console.log(watchers)
     Object.keys(watchers).forEach(key => {
       this._watchers.push(
         new Watcher(this, key, watchers[key].bind(this))
@@ -56,12 +55,28 @@ export function extendWatcher (watchers) {
   }
 }
 
-export function extendStore (store) {
+export function extendStore (
+  store,
+  mapState,
+  mapActions,
+  mapGetters,
+  mapMutations
+) {
   return function registerModule () {
     let app = getApp()
     let $store = app.$store || new Store({})
 
     this.$store = $store
     this._module = $store.registerModule([store.name || this.is], store)
+
+    mapState && mapStateToInstance(this, store, mapState)
+    mapActions && mapActionsToInstance(this, store, mapActions)
+    mapGetters && mapGettersToInstance(this, store, mapGetters)
+    mapMutations && mapMutationsToInstance(this, store, mapMutations)
   }
+}
+
+
+function mapStateToInstance (ctx, store, mapState, type) {
+
 }

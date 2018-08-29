@@ -20,9 +20,16 @@ const store = {
 Page({
   store,
   
-  // watch: {
-  //   '$'
-  // }
+  mapState: {
+    one: []
+  },
+
+  watch: {
+    '$store.state.step' (value, keys) {
+      console.log(value, keys)
+    }
+  },
+
   onLoad() {
     this.$store.dispatch('one/next')
     // console.log(this.$store)

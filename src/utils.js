@@ -31,7 +31,6 @@ export function parseKey (key) {
 
 export function get (target, key) {
   let res = target
-
   for (const keyItem of parseKey(key)) {
 
     if (keyItem === '') return res

@@ -112,6 +112,14 @@ export default class Store {
     return newModule
   }
 
+  uninstall (module) {
+    const path = module._path
+    const parent = this.getModule(path.slice(0, -1))
+    parent.removeChild(path[path.length - 1])
+
+    uninstallModule(store, path, module)
+  }
+
   computedGetters () {
     this.getters = {}
     const wrappedGetters = this._wrappedGetters
@@ -145,6 +153,28 @@ export default class Store {
   }
 }
 
+function uninstallModule (store, path, module) {
+  let namespace = store._getNamespace(module._path)
+
+  module.forEachMutation((mutation, key) => {
+    const namespacedType = namespace + key
+    store._mutations[namespacedType] = null
+  })
+
+  module.forEachAction((action, key) => {
+    const type = action.root ? key : namespace + key
+    store._actions[type] = null
+  })
+
+  module.forEachGetter((getter, key) => {
+    const namespacedType = namespace + key
+    store._wrappedGetters[namespacedType] = null
+  })
+
+  module.forEachChild((child, key) => {
+    module.removeChild(key)
+  })
+}
 function installModule (store, path, module) {
   let namespace = store._getNamespace(path)
 

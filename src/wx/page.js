@@ -20,23 +20,32 @@ const PAGE_LIFT_TIME = [
 
 
 export default function (...pages) {
-  pages.unshift({
-    onLoad () {
-
-    },
-
-    onUnload() {}
-  })
   let page = mergeInstances(PAGE_LIFT_TIME, pages)
-  let { store, watch } = page
+  let {
+    store,
+    watch,
+    mapState,
+    mapActions,
+    mapGetters,
+    mapMutations
+  } = page
+
   let watchers = getWatchers(watch)
 
   PAGE_LIFT_TIME.forEach(key => {
-    let lifes = page[key]
+    let lifes = page[key] || []
 
     if (key === 'onLoad') {
       !isEmpty(watchers) && lifes.unshift(extendWatcher(watchers))
-      !isEmpty(store) && lifes.unshift(extendStore(store))
+      lifes.unshift(
+        extendStore(
+          store,
+          mapState,
+          mapActions,
+          mapGetters,
+          mapMutations
+        )
+      )
     }
 
     if (key === 'onUnload') {
@@ -47,6 +56,13 @@ export default function (...pages) {
         }
       )
     }
+
+    page.store = null
+    page.watch = null
+    page.mapState = null
+    page.mapGetters = null
+    page.mapActions = null
+    page.mapMutations = null
     
     if(!(lifes && lifes.length)) return
 

@@ -1,5 +1,5 @@
 import defineReactive from './observer'
-import { parseKey, get, noop } from '../utils'
+import { parseKey, get, noop, isObject } from '../utils'
 let changeQ = []
 
 function minLenPath (paths) {
@@ -50,11 +50,16 @@ export default class Watcher {
     this._isWatching = true
     this._reactive = reactive || true
     this._ctx = ctx
+    this._value = this.target[this.key]
 
-    console.log(this.target, target)
+    if (!this.target || !isObject(this.target)) {
+      return console.error('监听对象必须是一个类型为 object 的变量')
+    }
 
+    if (!this._value || !isObject(this._value)) {
+      return console.warn('监听一个不可响应的值没有意义', key)
+    }
     this.ob = defineReactive(this.target, this.key, this.target[this.key], { watcher: this })
-    console.log(this.target, target)
 
     this.update()
   }

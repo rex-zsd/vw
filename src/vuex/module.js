@@ -4,7 +4,7 @@ export default class Module {
   constructor (rawModule, defineReactive, path = []) {
     this.rawModule = rawModule
     this.children = Object.create(null)
-
+    this._path = path
     this.state = rawModule.state || {}
     // defineReactive(this, 'state', rawModule.state || {}, path.concat('state'))
   }
