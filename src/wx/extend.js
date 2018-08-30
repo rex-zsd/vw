@@ -133,4 +133,5 @@ const patch = debounce((ctx) => {
     return prev
   }, {})
   ctx.setData(data)
+  ctx.__storeChanges = [];
 }, 100)
