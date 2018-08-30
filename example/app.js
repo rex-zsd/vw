@@ -4,6 +4,11 @@ App({
   store: {
     state: {
       test: 'a'
+    },
+    getters: {
+      sa(state) {
+        return state.test + 'v'
+      }
     }
   },
 

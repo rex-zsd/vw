@@ -1,5 +1,7 @@
 import Watcher from '../observe/watcher'
 import Store from '../vuex/store'
+import { mapState, mapGetters, mapMutations, mapActions } from '../vuex/helper'
+import { debounce } from '../utils'
 
 const EXTEND_PROP = [
   'watch',
@@ -69,14 +71,66 @@ export function extendStore (
     this.$store = $store
     this._module = $store.registerModule([store.name || this.is], store)
 
-    mapState && mapStateToInstance(this, store, mapState)
-    mapActions && mapActionsToInstance(this, store, mapActions)
-    mapGetters && mapGettersToInstance(this, store, mapGetters)
-    mapMutations && mapMutationsToInstance(this, store, mapMutations)
+    mapState && mapStateToInstance(this, $store, mapState)
+    mapActions && mapActionsToInstance(this, $store, mapActions)
+    mapGetters && mapGettersToInstance(this, $store, mapGetters)
+    mapMutations && mapMutationsToInstance(this, $store, mapMutations)
   }
 }
 
-
-function mapStateToInstance (ctx, store, mapState, type) {
-
+function mapStateToInstance (ctx, store, states, type) {
+  Object.keys(states).forEach(namespace => {
+    const mappedState = mapState(namespace, states[namespace])
+    const module = store.getModule([namespace])
+    states[namespace].forEach(key => {
+      new Watcher(module.context.state, key, () => {
+        resolveChanges(ctx, key, mappedState[key])
+      })
+    })
+  })
 }
+
+function mapGettersToInstance(ctx, store, getters, type) {
+  Object.keys(getters).forEach(namespace => {
+    const mappedGetters = mapState(namespace, getters[namespace])
+    const module = store.getModule([namespace])
+    getters[namespace].forEach(key => {
+      new Watcher(module.context.getters, key, () => {
+        resolveChanges(ctx, key, mappedGetters[key])
+      })
+    })
+  })
+}
+
+function mapActionsToInstance (ctx, store, actions, type) {
+  Object.keys(actions).forEach(namespace => {
+    const mappedActions = mapActions(namespace, actions[namespace])
+    Object.keys(mappedActions).forEach(key => {
+      ctx[key] = mappedActions[key].bind(ctx)
+    })
+  })
+}
+
+function mapMutationsToInstance (ctx, store, mutations, type) {
+  Object.keys(mutations).forEach(namespace => {
+    const mappedMutations = mapMutations(namespace, mutations[namespace])
+    Object.keys(mappedMutations).forEach(key => {
+      ctx[key] = mappedMutations[key].bind(ctx)
+    })
+  })
+}
+
+function resolveChanges(ctx, key, getValue) {
+  ctx.__storeChanges = ctx.__storeChanges || []
+  ctx.__storeChanges.push({ key, getValue })
+  patch(ctx)
+}
+
+const patch = debounce((ctx) => {
+  const changes = ctx.__storeChanges || []
+  const data = changes.reduce((prev, item) => {
+    prev[item.key] = item.getValue.call(ctx)
+    return prev
+  }, {})
+  ctx.setData(data)
+}, 100)
