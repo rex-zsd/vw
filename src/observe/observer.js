@@ -1,12 +1,15 @@
 import { isObject, def, isEmpty } from '../utils'
 import attachMethods from './array'
+import Dep from './dep';
+
 const arrayKeys = Object.getOwnPropertyNames(attachMethods)
 
-class Observer {
+export class Observer {
   constructor (value, key, parent, path) {
     this.enumerable = true
     this.configurable = true
     
+    this._dep = new Dep()
     this._key = key
     this._path = path || [key]
     this._value = value
@@ -24,6 +27,7 @@ class Observer {
   }
 
   get () {
+    this._dep.depend()
     return this._value
   }
 
@@ -34,6 +38,7 @@ class Observer {
       return
     }
     this.notify('value:change')
+    this._dep.notify()
     this.observe(newVal)
   }
 
@@ -152,7 +157,7 @@ class Observer {
 }
 
 function defineReactive (target, key, value, { watcher, parent, path } = {}) {
-  let ob = value.__ob__
+  let ob = isObject(value) && value.__ob__
   let property = Object.getOwnPropertyDescriptor(target, key)
   if (property && property.configurable === false) {
     return

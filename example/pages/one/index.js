@@ -53,14 +53,20 @@ Page({
     one: ['NEXT', 'MOCK']
   },
 
-  watch: {
-    '$store.state.step' (value, keys) {
-      console.log(value, keys)
+  computed: {
+    canGet () {
+      return this.step + this.fuu.length
     }
   },
 
+  watch: {
+    // 'step' (value, keys) {
+    //   console.log(value, keys)
+    // }
+  },
+
   onLoad() {
-    this.nextAction()
-    console.log(this.$store)
+    setTimeout(() => this.nextAction(), 200)
+    console.log(this.canGet)
   }
 })

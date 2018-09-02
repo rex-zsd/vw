@@ -21,7 +21,6 @@ export default class Store {
     }
 
     this.registerModule([], module)
-    this.computedGetters()
   }
 
   get state () {
@@ -109,6 +108,7 @@ export default class Store {
 
     installModule(this, path, newModule)
 
+    this.computedGetters()
     return newModule
   }
 

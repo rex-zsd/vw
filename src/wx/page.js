@@ -1,8 +1,6 @@
 import { nativePage } from './native'
-import { extendLife, mergeInstances, extendWatcher, extendStore } from './extend'
-import getWatchers from './watch'
-import Store from '../vuex/store'
-import { isEmpty } from '../utils'
+import { extendLife, mergeInstances, extendWatcher, extendStore, extendComputed } from './extend'
+import { isEmpty, normalizeWatch } from '../utils'
 
 const PAGE_LIFT_TIME = [
   'onLoad',
@@ -24,19 +22,21 @@ export default function (...pages) {
   let {
     store,
     watch,
+    computed,
     mapState,
     mapActions,
     mapGetters,
     mapMutations
   } = page
 
-  let watchers = getWatchers(watch)
+  let watchers = normalizeWatch(watch)
 
   PAGE_LIFT_TIME.forEach(key => {
     let lifes = page[key] || []
 
     if (key === 'onLoad') {
       !isEmpty(watchers) && lifes.unshift(extendWatcher(watchers))
+      !isEmpty(computed) && lifes.unshift(extendComputed(computed))
       lifes.unshift(
         extendStore(
           store,

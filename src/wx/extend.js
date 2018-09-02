@@ -1,10 +1,10 @@
 import Watcher from '../observe/watcher'
 import Store from '../vuex/store'
 import { mapState, mapGetters, mapMutations, mapActions } from '../vuex/helper'
-import { debounce } from '../utils'
+import { debounce, noop } from '../utils'
 
 const EXTEND_PROP = [
-  'watch',
+  'watch'
 ]
 
 export function extendLife (lifeFns) {
@@ -57,6 +57,27 @@ export function extendWatcher (watchers) {
   }
 }
 
+export function extendComputed (computedProps) {
+  return function computed () {
+    let props = Object.keys(computedProps)
+
+    props.forEach(key => {
+      let get = (computedProps[key].get || computedProps[key]).bind(this)
+      let set = (computedProps[key].set || noop).bind(this)
+
+      const onUpdated = () => {
+        resolveChanges(this, key, get)
+      }
+
+      new Watcher(this, key, onUpdated.bind(this), {
+        get,
+        set,
+        computed: true
+      })
+    })
+  }
+}
+
 export function extendStore (
   store,
   mapState,
@@ -83,6 +104,7 @@ function mapStateToInstance (ctx, store, states, type) {
     const mappedState = mapState(namespace, states[namespace])
     const module = store.getModule([namespace])
     states[namespace].forEach(key => {
+      ctx[key] = module.context.state[key]
       new Watcher(module.context.state, key, () => {
         resolveChanges(ctx, key, mappedState[key])
       })
@@ -92,11 +114,17 @@ function mapStateToInstance (ctx, store, states, type) {
 
 function mapGettersToInstance(ctx, store, getters, type) {
   Object.keys(getters).forEach(namespace => {
-    const mappedGetters = mapState(namespace, getters[namespace])
-    const module = store.getModule([namespace])
+    const mappedGetters = mapGetters(namespace, getters[namespace])
+
     getters[namespace].forEach(key => {
-      new Watcher(module.context.getters, key, () => {
-        resolveChanges(ctx, key, mappedGetters[key])
+      const get = mappedGetters[key].bind(ctx)
+      const updated = () => {
+        resolveChanges(ctx, key, get)
+      }
+
+      new Watcher(ctx, key, updated.bind(ctx), {
+        computed: true,
+        get
       })
     })
   })

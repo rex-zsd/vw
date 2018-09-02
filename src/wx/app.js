@@ -1,6 +1,5 @@
 import { mergeInstances, extendWatcher, extendLife } from './extend'
-import { isEmpty } from '../utils'
-import getWatchers from './watch'
+import { isEmpty, normalizeWatch } from '../utils'
 import Store from '../vuex/store'
 import { nativeApp } from './native'
 
@@ -17,7 +16,7 @@ export default function (...apps) {
   let app = mergeInstances(APP_LIFT_TIME, apps)
   let { store, watch } = app
 
-  let watchers = watch ? getWatchers(watch) : []
+  let watchers = watch ? normalizeWatch(watch) : []
 
   app.$store = new Store(store)
   app._watchers = []

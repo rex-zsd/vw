@@ -65,16 +65,13 @@ export const mapGetters = normalizeNamespace((namespace, getters) => {
   const res = {}
   normalizeMap(getters).forEach(({ key, val }) => {
     // thie namespace has been mutate by normalizeNamespace
-    val = namespace + val
     res[key] = function mappedGetter () {
-      if (namespace && !getModuleByNamespace(this.$store, 'mapGetters', namespace)) {
-        return
-      }
-      if (process.env.NODE_ENV !== 'production' && !(val in this.$store.getters)) {
+      const module = getModuleByNamespace(this.$store, 'mapGetters', namespace)
+      if (process.env.NODE_ENV !== 'production' && !(val in module.context.getters)) {
         console.error(`[vuex] unknown getter: ${val}`)
         return
       }
-      return this.$store.getters[val]
+      return module.context.getters[val]
     }
     // mark vuex getter for devtools
     res[key].vuex = true
