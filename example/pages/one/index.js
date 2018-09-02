@@ -4,7 +4,19 @@ const store = {
   namespaced: true,
   name: 'one',
   state: {
-    step: 1
+    step: 1,
+    fuu: [1, 2, 3]
+  },
+  getters: {
+    momo(state) {
+      return state.step + 2
+    },
+    rank(state) {
+      return state.fuu
+    },
+    doneTodos: state => {
+      return state.fuu.filter(todo => todo === 1)
+    }
   },
   actions: {
     next ({commit}) {
@@ -14,6 +26,9 @@ const store = {
   mutations: {
     NEXT (state) {
       state.step ++
+    },
+    MOCK (state, payload) {
+      state.fuu.push(payload)
     }
   }
 }
@@ -21,7 +36,21 @@ Page({
   store,
   
   mapState: {
-    one: []
+    one: ['step', 'fuu']
+  },
+
+  mapGetters: {
+    one: ['momo', 'doneTodos']
+  },
+
+  mapActions: {
+    one: {
+      nextAction: 'next'
+    }
+  },
+
+  mapMutations: {
+    one: ['NEXT', 'MOCK']
   },
 
   watch: {
@@ -31,7 +60,7 @@ Page({
   },
 
   onLoad() {
-    this.$store.dispatch('one/next')
-    // console.log(this.$store)
+    this.nextAction()
+    console.log(this.$store)
   }
 })
